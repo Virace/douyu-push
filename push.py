@@ -57,6 +57,14 @@ def push_plus(token, msg: Union[str, Message], topic='', template='html'):
 
 
 def cool_push(token, msg: Union[str, Message], _type: int = 0, extra: str = None):
+    """
+    酷推 推送
+    :param token: 推送token
+    :param msg: 推送消息
+    :param _type: 推送类型, 取值范围0~3,分别对应 私聊/群/私有私聊/私有群
+    :param extra: 指定推送参数, QQ号或群号
+    :return:
+    """
     url_format = {
         0: ('send', lambda x: f'userId={x}' if x else None),
         2: ('psend', lambda x: f'userId={x}' if x else None),
@@ -83,7 +91,3 @@ def cool_push(token, msg: Union[str, Message], _type: int = 0, extra: str = None
     response = requests.post(url, data=data.encode('utf-8'), headers={'Content-Type': 'application/json'})
     response.raise_for_status()
     log.debug(response.json())
-
-
-if __name__ == '__main__':
-    cool_push('799feb4ed90b45ea4147a043934fe2dd', Message('标题', '内容'))
