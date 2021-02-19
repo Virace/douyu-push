@@ -6,22 +6,22 @@
 # @Software: PyCharm
 # @Detail  :
 import leancloud
-from config import LEARNCLOUD_APP_ID, LEARNCLOUD_APP_KEY, LEARNCLOUD_OID
+from config import LEANCLOUD_APP_ID, LEANCLOUD_APP_KEY, LEANCLOUD_OID
 
 
-leancloud.init(LEARNCLOUD_APP_ID, LEARNCLOUD_APP_KEY)
+leancloud.init(LEANCLOUD_APP_ID, LEANCLOUD_APP_KEY)
 
 Douyu = leancloud.Object.extend('douyu')
 query = Douyu.query
 
 
 def get_time():
-    item = query.get(LEARNCLOUD_OID)
+    item = query.get(LEANCLOUD_OID)
     return item.get('time')
 
 
 def update_time(data):
-    todo = Douyu.create_without_data(LEARNCLOUD_OID)
+    todo = Douyu.create_without_data(LEANCLOUD_OID)
     todo.set('time', data)
     todo.save()
 

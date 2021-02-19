@@ -6,11 +6,11 @@
 # @Software: PyCharm
 # @Detail  :
 
-LEARNCLOUD_APP_ID = ''
-LEARNCLOUD_APP_KEY = ''
+LEANCLOUD_APP_ID = ''
+LEANCLOUD_APP_KEY = ''
 
 # 新建数据行ID
-LEARNCLOUD_OID = ''
+LEANCLOUD_OID = ''
 
 # 推送token, 访问https://pushplus.hxtrip.com/后, 点击一对多或一对一推动微信扫码后获得.
 PUSH_PLUS_TOKEN = ''
