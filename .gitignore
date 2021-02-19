@@ -136,3 +136,4 @@ dmypy.json
 # other
 *.zip
 *.7z
+scf_env
