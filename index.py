@@ -36,12 +36,12 @@ def notification_push(msg: Message, extra: dict = None):
     :param extra: 额外参数:
     {
         # push+ 群组推送ID
-        "push_plus_topic": ''
+        "push_plus_topic": '',
         # push+ 推送模板
-        "push_plus_template": ''
+        "push_plus_template": '',
 
         # coolpush 推送类型(私人推送或群组推送)
-        "cool_push_type": ''
+        "cool_push_type": '',
         # coolpush 指定推送ID, userId/groupId
         "cool_push_specific": ''
     }
