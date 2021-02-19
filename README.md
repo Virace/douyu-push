@@ -22,6 +22,7 @@
 ### 介绍
 - 已完成的功能
   - 查询直播间直播状态
+  - 多个直播间监测
   - Push+ 微信推送
   - 酷推 QQ机器人推送
 
@@ -61,17 +62,25 @@
   - COOL_PUSH_TOKEN 酷推推送token
   
 - 触发器
-触发器变量为json格式, key值为直播间ID, 后面具体含义详见index.py中notification_push函数注释
-```json
-{
-  "71415":{
-            "push_plus_topic": "",
-            "push_plus_template": "",
-            "cool_push_type": "",
-            "cool_push_specific": ""
-           }
-}
-```
+
+  触发器变量为json格式, key值为直播间ID, 后面具体含义详见index.py中notification_push函数注释. 支持多个直播间监测.
+  ```json
+  {
+    "71415":{
+              "push_plus_topic": "",
+              "push_plus_template": "",
+              "cool_push_type": "",
+              "cool_push_specific": ""
+             },
+    "74751": {
+              "push_plus_topic": "",
+              "push_plus_template": "",
+              "cool_push_type": "",
+              "cool_push_specific": ""
+            }
+  }
+  ```
+  可以通过创建多个触发器并行.
 ### 维护者
 **Virace**
 - blog: [孤独的未知数](https://x-item.com)
