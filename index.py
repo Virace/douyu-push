@@ -6,36 +6,70 @@
 # @Software: PyCharm
 # @Detail  : 斗鱼订阅推送
 
+import os
+import json
 import time
 import requests
 import logging
-from typing import Union
 
-from database import get_time, update_time
-from config import PUSH_PLUS_TOKEN
+from database import Flag
+
+from push import push_plus, cool_push, Message
 
 logging.basicConfig(level=logging.DEBUG)
 log = logging.getLogger()
 
+LEANCLOUD_APP_ID = os.environ.get('LEANCLOUD_APP_ID')
+LEANCLOUD_APP_KEY = os.environ.get('LEANCLOUD_APP_KEY')
+LEANCLOUD_OID = os.environ.get('LEANCLOUD_OID')
+assert LEANCLOUD_APP_ID, 'LEANCLOUD_APP_ID不能为空'
+assert LEANCLOUD_APP_KEY, 'LEANCLOUD_APP_KEY不能为空'
+assert LEANCLOUD_OID, 'LEANCLOUD_OID不能为空'
 
-def notification_push(title: str, msg: Union[str, dict], topic='', template='html'):
+flag = Flag(LEANCLOUD_APP_ID, LEANCLOUD_APP_KEY, LEANCLOUD_OID)
+
+
+def notification_push(msg: Message, extra: dict = None):
     """
-    push+推送 官网: https://pushplus.hxtrip.com/
-    :param title: 标题
-    :param msg: 消息
-    :param topic: 推送群组ID(一对多推送时使用)
-    :param template: json/html
+    消息推送
+    :param msg: 消息主题
+    :param extra: 额外参数:
+    {
+        # push+ 群组推送ID
+        "push_plus_topic": ''
+        # push+ 推送模板
+        "push_plus_template": ''
+
+        # coolpush 推送类型(私人推送或群组推送)
+        "cool_push_type": ''
+        # coolpush 指定推送ID, userId/groupId
+        "cool_push_specific": ''
+    }
     :return:
     """
-    url = f'https://pushplus.hxtrip.com/send'
-    data = {'token': PUSH_PLUS_TOKEN,
-            'title': title,
-            'content': msg,
-            'topic': topic,
-            "template": template}
-    response = requests.post(url, json=data, headers={'Content-Type': 'application/json'})
-    response.raise_for_status()
-    log.debug(response.json())
+    if extra is None:
+        extra = {}
+
+    push_plus_token = os.environ.get('PUSH_PLUS_TOKEN')
+    cool_push_token = os.environ.get('COOL_PUSH_TOKEN')
+
+    if push_plus_token:
+        push_plus(
+            push_plus_token,
+            msg,
+            topic=extra.get('push_plus_topic', ''),
+            template=extra.get('push_plus_template', 'html')
+        )
+
+    elif cool_push_token:
+        cool_push(
+            push_plus_token,
+            msg,
+            _type=extra.get('cool_push_type', 0),
+            extra=extra.get('cool_push_specific', None))
+
+    else:
+        raise Exception('未提供任何推送token')
 
 
 def get_status(rid: str) -> tuple:
@@ -54,13 +88,15 @@ def get_status(rid: str) -> tuple:
         item = item['roomInfo']
         if item['rid'] == int(rid):
             return item['isLive'] == 1, item
+    else:
+        return None, None
 
 
-def monitor_and_notify(rid: str, push_id=''):
+def monitor_and_notify(rid: str, extra: dict = None):
     """
     监测并推送
     :param rid: 直播间ID
-    :param push_id: push+ 推送群组ID
+    :param extra: 额外参数
     :return:
     """
     status, data = get_status(rid)
@@ -69,27 +105,45 @@ def monitor_and_notify(rid: str, push_id=''):
 
     if status:
         try:
-            old = get_time()
+            old = flag.get_time()
             if old == data["lastShowTime"]:
                 return
 
             else:
-                update_time(data["lastShowTime"])
+                flag.update_time(data["lastShowTime"])
         except Exception as e:
             log.warning(e)
             return
         else:
             notification_push(
-                f'您关注的主播 {data["nickName"]} 正在直播!',
-                f'最后开播时间: {lst}<br>'
-                f'<img src={data["avatar"]}>',
-                push_id
+                Message(title=f'您关注的主播 {data["nickName"]} 正在直播!',
+                        content=f'最后开播时间: {lst}<br>'
+                                f'<img src={data["avatar"]}>'),
+                extra
             )
 
 
 def main_handler(event, context):
+    """
+    云函数调用函数
+    :param event:
+    :param context:
+    :return:
+    """
     if event and 'Message' in event:
-        data = event['Message'].split(',')
-        assert len(data) == 2, '触发器格式不正确'
-        monitor_and_notify(data[0], data[1])
+        try:
+            data = json.loads(event['Message'].strip())
+        except Exception as e:
+            raise Exception('触发器格式不正确', e)
+        else:
+            for item in data.items():
+                monitor_and_notify(item[0], item[1])
+    else:
+        raise Exception('请配置触发器参数')
 
+
+if __name__ == '__main__':
+    monitor_and_notify('71415', dict(
+        push_plus_topic='71415',
+        cool_push_type='1'
+    ))

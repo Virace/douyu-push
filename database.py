@@ -6,26 +6,22 @@
 # @Software: PyCharm
 # @Detail  :
 import leancloud
-from config import LEANCLOUD_APP_ID, LEANCLOUD_APP_KEY, LEANCLOUD_OID
 
 
-leancloud.init(LEANCLOUD_APP_ID, LEANCLOUD_APP_KEY)
+class Flag:
 
-Douyu = leancloud.Object.extend('douyu')
-query = Douyu.query
+    def __init__(self, app_id, app_key, oid):
+        leancloud.init(app_id, app_key)
 
+        self.Douyu = leancloud.Object.extend('douyu')
+        self.query = self.Douyu.query
+        self.oid = oid
 
-def get_time():
-    item = query.get(LEANCLOUD_OID)
-    return item.get('time')
+    def get_time(self):
+        item = self.query.get(self.oid)
+        return item.get('time')
 
-
-def update_time(data):
-    todo = Douyu.create_without_data(LEANCLOUD_OID)
-    todo.set('time', data)
-    todo.save()
-
-
-if __name__ == '__main__':
-    print(get_time())
-
+    def update_time(self, data):
+        todo = self.Douyu.create_without_data(self.oid)
+        todo.set('time', data)
+        todo.save()
