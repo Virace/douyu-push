@@ -116,7 +116,7 @@ def monitor_and_notify(rid: str, extra: dict = None):
             return
         else:
             notification_push(
-                Message(title=f'您关注的主播 {data["nickName"]} 正在直播!',
+                Message(title=f'您关注的主播 {data["nickName"]}:{data["rid"]} 正在直播!',
                         content=f'最后开播时间: {lst}<br>'
                                 f'<img src={data["avatar"]}>'),
                 extra
