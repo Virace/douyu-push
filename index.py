@@ -6,6 +6,7 @@
 # @Software: PyCharm
 # @Detail  : 斗鱼订阅推送
 
+import json
 import os
 import time
 import requests
@@ -131,7 +132,7 @@ def main_handler(event, context):
     """
     if event and 'Message' in event:
         try:
-            data = event['Message']
+            data = json.loads(event['Message'].strip())
         except Exception as e:
             raise Exception('触发器格式不正确', e)
         else:
