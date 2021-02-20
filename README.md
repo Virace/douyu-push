@@ -42,6 +42,7 @@
 
 **要求:**
 - 直接克隆本库
+- python3.6, 与腾讯云函数版本相同
 - leancloud创建应用, 并获取appid、appkey和数据行id
   ![](https://tva1.sinaimg.cn/large/008aYkguly1gnt4j0xp6dj31n315vn4o.jpg)
   ![](https://tva1.sinaimg.cn/large/008aYkguly1gnt4j0wu5sj323s0ysgr1.jpg)
@@ -53,6 +54,18 @@
 - 所需参数均以环境变量方式提供, 本地测试已pycharm为例, 可以在右上角编辑配置将环境变量加入, 也可以自行新建一个test.py, 然后模拟云函数调用.
 
 ### 部署
+- 环境配置
+  - 完整包上传
+    ```shell
+    pip install -r requirements.txt .    
+    ```
+    意为将包安装在当前目录下, 云函数上传时直接将项目文件全部压缩上传即可.
+  - 使用腾讯云 云函数功能“层”
+    ```shell
+    pip install -r requirements.txt scf_env    
+    ```
+    意为将包安装在scf_env目录中, 进入scf_env目录将所有文件选中压缩为zip, 在腾讯云 云函数 控制台上传层, 并在新建的函数中绑定层即可.
+  
 - 环境变量
   - LEANCLOUD_APP_ID leancloud应用ID
   - LEANCLOUD_APP_KEY leancloud应用KEY
