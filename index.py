@@ -7,7 +7,6 @@
 # @Detail  : 斗鱼订阅推送
 
 import os
-import json
 import time
 import requests
 import logging
@@ -132,7 +131,7 @@ def main_handler(event, context):
     """
     if event and 'Message' in event:
         try:
-            data = json.loads(event['Message'].strip())
+            data = event['Message']
         except Exception as e:
             raise Exception('触发器格式不正确', e)
         else:
