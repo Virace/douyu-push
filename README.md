@@ -77,6 +77,7 @@
 - 触发器
 
   触发器变量为json格式, key值为直播间ID, 后面具体含义详见index.py中notification_push函数注释. 支持多个直播间监测.
+  ![](https://tva1.sinaimg.cn/large/008aYkguly1gntwi6jyk2j30su0jiabh.jpg)
   ```json
   {
     "71415":{
@@ -94,6 +95,7 @@
   }
   ```
   可以通过创建多个触发器并行.
+  
 ### 维护者
 **Virace**
 - blog: [孤独的未知数](https://x-item.com)
