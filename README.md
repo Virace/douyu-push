@@ -1,7 +1,7 @@
 # DouYu-Push
 
 <p align="center">
-<img src="https://img.shields.io/badge/python-3.x-blue">
+<img src="https://img.shields.io/badge/python-3.6-blue">
 <img src="https://img.shields.io/github/license/Virace/douyu-push?color=%234c1&style=flat-square">
 </p>
 
