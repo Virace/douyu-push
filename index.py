@@ -16,8 +16,9 @@ from database import Flag
 
 from push import push_plus, cool_push, Message
 
-logging.basicConfig(level=logging.DEBUG)
-log = logging.getLogger()
+logging.getLogger('urllib3.connectionpool').setLevel(logging.INFO)
+log = logging.getLogger(__name__)
+log.setLevel(logging.INFO)
 
 LEANCLOUD_APP_ID = os.environ.get('LEANCLOUD_APP_ID')
 LEANCLOUD_APP_KEY = os.environ.get('LEANCLOUD_APP_KEY')
