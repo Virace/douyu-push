@@ -101,7 +101,6 @@ def monitor_and_notify(rid: str, extra: dict = None):
     """
     status, data = get_status(rid)
     log.info(f'{rid} 直播状态: {status}')
-    lst = time.strftime("%Y年%m月%d日 %H点%M分%S秒", time.localtime(data["lastShowTime"]))
 
     if status:
         try:
@@ -115,6 +114,11 @@ def monitor_and_notify(rid: str, extra: dict = None):
             log.warning(e)
             return
         else:
+            # python3.6版本未的strftime函数进行优化
+            # 时间格式化中出现中文可能会出现UnicodeEncodeError错误
+            # 因为部署环境不同, 所以不建议使用local包进行修改
+            lst = time.strftime("%Y{}%m{}%d{} %H{}%M{}%S{}", time.localtime(data["lastShowTime"]))
+            lst = lst.format('年', '月', '日', '点', '分', '秒')
             notification_push(
                 Message(title=f'您关注的主播 {data["nickName"]}:{data["rid"]} 正在直播!',
                         content=f'最后开播时间: {lst}<br>'
