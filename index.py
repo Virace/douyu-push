@@ -22,12 +22,10 @@ log.setLevel(logging.INFO)
 
 LEANCLOUD_APP_ID = os.environ.get('LEANCLOUD_APP_ID')
 LEANCLOUD_APP_KEY = os.environ.get('LEANCLOUD_APP_KEY')
-LEANCLOUD_OID = os.environ.get('LEANCLOUD_OID')
 assert LEANCLOUD_APP_ID, 'LEANCLOUD_APP_ID不能为空'
 assert LEANCLOUD_APP_KEY, 'LEANCLOUD_APP_KEY不能为空'
-assert LEANCLOUD_OID, 'LEANCLOUD_OID不能为空'
 
-flag = Flag(LEANCLOUD_APP_ID, LEANCLOUD_APP_KEY, LEANCLOUD_OID)
+flag = Flag(LEANCLOUD_APP_ID, LEANCLOUD_APP_KEY)
 
 
 def notification_push(msg: Message, extra: dict = None):
@@ -97,20 +95,37 @@ def monitor_and_notify(rid: str, extra: dict = None):
     """
     监测并推送
     :param rid: 直播间ID
-    :param extra: 额外参数
+    :param extra: 额外参数:
+    {
+        # push+ 群组推送ID
+        "push_plus_topic": '',
+        # push+ 推送模板
+        "push_plus_template": '',
+
+        # coolpush 推送类型(私人推送或群组推送)
+        "cool_push_type": '',
+        # coolpush 指定推送ID, userId/groupId
+        "cool_push_specific": ''
+
+        # leancloud结构化数据中, 数据行objectId, 一个直播间对应一个数据行进行判断
+        "leancloud_oid": '',
+    }
     :return:
     """
     status, data = get_status(rid)
     log.info(f'{rid} 直播状态: {status}')
 
+    oid = extra.get('leancloud_oid', None)
+    assert oid, '缺少关键性参数, leancloud_oid'
+
     if status:
         try:
-            old = flag.get_time()
+            old = flag.get_time(oid)
             if old == data["lastShowTime"]:
                 return
 
             else:
-                flag.update_time(data["lastShowTime"])
+                flag.update_time(oid, data["lastShowTime"])
         except Exception as e:
             log.warning(e)
             return
@@ -145,10 +160,3 @@ def main_handler(event, context):
                 monitor_and_notify(item[0], item[1])
     else:
         raise Exception('请配置触发器参数')
-
-
-if __name__ == '__main__':
-    monitor_and_notify('71415', dict(
-        push_plus_topic='71415',
-        cool_push_type='1'
-    ))

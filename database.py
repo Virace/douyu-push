@@ -10,18 +10,17 @@ import leancloud
 
 class Flag:
 
-    def __init__(self, app_id, app_key, oid):
+    def __init__(self, app_id, app_key):
         leancloud.init(app_id, app_key)
 
         self.Douyu = leancloud.Object.extend('douyu')
         self.query = self.Douyu.query
-        self.oid = oid
 
-    def get_time(self):
-        item = self.query.get(self.oid)
+    def get_time(self, oid):
+        item = self.query.get(oid)
         return item.get('time')
 
-    def update_time(self, data):
-        todo = self.Douyu.create_without_data(self.oid)
+    def update_time(self, oid, data):
+        todo = self.Douyu.create_without_data(oid)
         todo.set('time', data)
         todo.save()
