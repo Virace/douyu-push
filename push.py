@@ -10,6 +10,7 @@ import requests
 import logging
 from typing import Union
 from dataclasses import dataclass
+from bs4 import BeautifulSoup
 
 logging.basicConfig(level=logging.DEBUG)
 log = logging.getLogger()
@@ -20,11 +21,16 @@ class Message:
     content: str
     title: str = None
 
-    def to_str(self):
+    def to_html(self):
         if self.title:
             return f'{self.title}\n{self.content}'
         else:
             return self.content
+
+    def to_str(self):
+        s = self.to_html().replace('<br>', '\n')
+        soup = BeautifulSoup(s, 'lxml')
+        return soup.get_text().strip('\n')
 
     def to_dict(self):
         return dict(title=self.title, content=self.content)
