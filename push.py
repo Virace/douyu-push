@@ -91,3 +91,48 @@ def cool_push(token, msg: Union[str, Message], _type: int = 0, extra: str = None
     response = requests.post(url, data=data.encode('utf-8'), headers={'Content-Type': 'application/json'})
     response.raise_for_status()
     log.debug(response.json())
+
+
+def wxpusher_push(token, msg: Union[str, Message], _type: int = 1, topic_ids: list = None, url: str = None):
+    """
+    WxPusher 推送
+    :param token: 推送token
+    :param msg: 消息
+    :param _type: 消息类型 对应 data -> contentType
+    :param topic_ids: 推送的主题ID
+    :param url: 消息提示链接
+    :return:
+    """
+    assert _type in [1, 2, 3], '_type取值范围1~3'
+    assert topic_ids, 'topic_ids不能为空, 至少推送一个主题'
+
+    data = {
+        "appToken": token,
+        "contentType": _type,
+        "topicIds": topic_ids,
+
+    }
+
+    if isinstance(msg, Message):
+        data.update({
+            "content": msg.content,
+            "summary": msg.title,
+        })
+        content = msg.to_str()
+    elif isinstance(msg, str):
+        data.update({
+            "content": msg,
+        })
+    else:
+        raise Exception('msg参数类型错误')
+
+    if url:
+        data.update({
+            "url": url
+        })
+
+    url = 'http://wxpusher.zjiecode.com/api/send/message'
+
+    response = requests.post(url, json=data, headers={'Content-Type': 'application/json'})
+    response.raise_for_status()
+    log.debug(response.json())
