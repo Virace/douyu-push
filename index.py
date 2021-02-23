@@ -65,31 +65,31 @@ def notification_push(msg: Message, extra: dict = None):
     cool_push_token = os.environ.get('COOL_PUSH_TOKEN')
     wxpusher_token = os.environ.get('WXPUSHER_TOKEN')
 
-    if push_plus_token:
-        push_plus(
-            push_plus_token,
-            msg,
-            topic=extra.get('push_plus_topic', ''),
-            template=extra.get('push_plus_template', 'html')
-        )
+    # if push_plus_token:
+    #     push_plus(
+    #         push_plus_token,
+    #         msg,
+    #         topic=extra.get('push_plus_topic', ''),
+    #         template=extra.get('push_plus_template', 'html')
+    #     )
+    #
+    # if cool_push_token:
+    #     cool_push(
+    #         push_plus_token,
+    #         msg,
+    #         _type=extra.get('cool_push_type', 0),
+    #         extra=extra.get('cool_push_specific', None))
+    #
+    # if wxpusher_token:
+    #     wxpusher_push(
+    #         wxpusher_token,
+    #         msg,
+    #         _type=extra.get('wxpusher_type', 1),
+    #         topic_ids=extra.get('wxpusher_topicids', None),
+    #         url=extra.get('wxpusher_url', None)
+    #     )
 
-    elif cool_push_token:
-        cool_push(
-            push_plus_token,
-            msg,
-            _type=extra.get('cool_push_type', 0),
-            extra=extra.get('cool_push_specific', None))
-
-    elif wxpusher_token:
-        wxpusher_push(
-            wxpusher_token,
-            msg,
-            _type=extra.get('wxpusher_type', 1),
-            topic_ids=extra.get('wxpusher_topicids', None),
-            url=extra.get('wxpusher_url', None)
-        )
-
-    else:
+    if not (push_plus_token or cool_push_token or wxpusher_token):
         raise Exception('未提供任何推送token')
 
 
