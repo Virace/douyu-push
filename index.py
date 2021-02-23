@@ -14,7 +14,7 @@ import logging
 
 from database import Flag
 
-from push import push_plus, cool_push, Message
+from push import Message, push_plus, cool_push, wxpusher_push
 
 logging.getLogger('urllib3.connectionpool').setLevel(logging.INFO)
 log = logging.getLogger(__name__)
@@ -42,7 +42,14 @@ def notification_push(msg: Message, extra: dict = None):
         # coolpush 推送类型(私人推送或群组推送)
         "cool_push_type": '',
         # coolpush 指定推送ID, userId/groupId
-        "cool_push_specific": ''
+        "cool_push_specific": '',
+
+        # WxPusher 推送类型(格式)
+        "wxpusher_type" : '',
+        # WxPusher 推送主题ID[]
+        "wxpusher_topicids" : [],
+        # WxPusher 消息底部链接
+        "wxpusher_url" : '',
     }
     :return:
     """
@@ -51,6 +58,7 @@ def notification_push(msg: Message, extra: dict = None):
 
     push_plus_token = os.environ.get('PUSH_PLUS_TOKEN')
     cool_push_token = os.environ.get('COOL_PUSH_TOKEN')
+    wxpusher_token = os.environ.get('WXPUSHER_TOKEN')
 
     if push_plus_token:
         push_plus(
@@ -66,6 +74,15 @@ def notification_push(msg: Message, extra: dict = None):
             msg,
             _type=extra.get('cool_push_type', 0),
             extra=extra.get('cool_push_specific', None))
+
+    elif wxpusher_token:
+        wxpusher_push(
+            wxpusher_token,
+            msg,
+            _type=extra.get('wxpusher_type', 1),
+            topic_ids=extra.get('wxpusher_topicids', None),
+            url=extra.get('wxpusher_url', None)
+        )
 
     else:
         raise Exception('未提供任何推送token')
