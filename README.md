@@ -23,6 +23,7 @@
     - 查询直播间直播状态
     - 多个直播间监测
     - Push+ 微信推送
+    - WxPusher 微信推送
     - 酷推 QQ机器人推送
 
 
@@ -65,7 +66,7 @@
       意为将包安装在当前目录下, 云函数上传时直接将项目文件全部压缩上传即可.
     - 使用腾讯云 云函数功能“层”
       ```shell
-      pip install -r requirements.txt scf_env    
+      pip install -r requirements.txt -t scf_env    
       ```
       意为将包安装在scf_env目录中, 进入scf_env目录将所有文件选中压缩为zip, 在腾讯云 云函数 控制台上传层, 并在新建的函数中绑定层即可.
 
@@ -76,10 +77,11 @@
     - ~~LEANCLOUD_OID 新建数据行ID~~
     - PUSH_PLUS_TOKEN push+推送token
     - COOL_PUSH_TOKEN 酷推推送token
+    - WXPUSHER_TOKEN WxPusher推送token
 
 - 触发器
 
-  触发器变量为json格式, key值为直播间ID, 后面具体含义详见[index.py](index.py#L94)中monitor_and_notify函数注释. 支持多个直播间监测.
+  触发器变量为json格式, key值为直播间ID, 后面具体含义详见[index.py](index.py#L116)中monitor_and_notify函数注释. 支持多个直播间监测.
   ![](https://tva1.sinaimg.cn/large/008aYkguly1gntwi6jyk2j30su0jiabh.jpg)
   ```json
   {
@@ -88,14 +90,20 @@
               "push_plus_template": "",
               "cool_push_type": "",
               "cool_push_specific": "",
-              "leancloud_oid": ""
+              "leancloud_oid": "",
+              "wxpusher_type" : "",
+              "wxpusher_topicids" : [],
+              "wxpusher_url" : ""
              },
     "74751": {
               "push_plus_topic": "",
               "push_plus_template": "",
               "cool_push_type": "",
               "cool_push_specific": "",
-              "leancloud_oid": ""
+              "leancloud_oid": "",
+              "wxpusher_type" : "",
+              "wxpusher_topicids" : [],
+              "wxpusher_url" : ""
             }
   }
   ```
@@ -111,6 +119,7 @@
 
 - [@pcstx1](http://pushplus.hxtrip.com/), **Push+** 服务提供方
 - [@xuthus](https://cp.xuthus.cc/), **CoolPush** 服务提供方
+- [@lanyunt](https://wxpusher.zjiecode.com/), **WxPusher** 服务提供方
 - 以及**JetBrains**提供开发环境支持
 
   <a href="https://www.jetbrains.com/?from=kratos-pe" target="_blank"><img src="https://cdn.jsdelivr.net/gh/virace/kratos-pe@main/jetbrains.svg"></a>
