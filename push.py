@@ -17,11 +17,14 @@ log = logging.getLogger()
 
 @dataclass
 class Message:
-    title: str
     content: str
+    title: str = None
 
     def to_str(self):
-        return f'{self.title}\n{self.content}'
+        if self.title:
+            return f'{self.title}\n{self.content}'
+        else:
+            return self.content
 
     def to_dict(self):
         return dict(title=self.title, content=self.content)
@@ -106,6 +109,9 @@ def wxpusher_push(token, msg: Union[str, Message], _type: int = 1, topic_ids: li
     assert _type in [1, 2, 3], '_type取值范围1~3'
     assert topic_ids, 'topic_ids不能为空, 至少推送一个主题'
 
+    if _type == 1 and isinstance(msg, Message):
+        msg = msg.to_str()
+
     data = {
         "appToken": token,
         "contentType": _type,
@@ -118,7 +124,6 @@ def wxpusher_push(token, msg: Union[str, Message], _type: int = 1, topic_ids: li
             "content": msg.content,
             "summary": msg.title,
         })
-        content = msg.to_str()
     elif isinstance(msg, str):
         data.update({
             "content": msg,
