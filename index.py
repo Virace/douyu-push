@@ -8,6 +8,7 @@
 
 import json
 import os
+import sys
 import time
 import requests
 import logging
@@ -26,6 +27,10 @@ assert LEANCLOUD_APP_ID, 'LEANCLOUD_APP_ID不能为空'
 assert LEANCLOUD_APP_KEY, 'LEANCLOUD_APP_KEY不能为空'
 
 flag = Flag(LEANCLOUD_APP_ID, LEANCLOUD_APP_KEY)
+# 设置时区
+if sys.platform != "win32":
+    os.environ['TZ'] = 'Asia/Shanghai'
+    time.tzset()
 
 
 def notification_push(msg: Message, extra: dict = None):
@@ -123,6 +128,8 @@ def monitor_and_notify(rid: str, extra: dict = None):
         "cool_push_type": '',
         # coolpush 指定推送ID, userId/groupId
         "cool_push_specific": ''
+        ....
+        # 详见notification_push函数文档
 
         # leancloud结构化数据中, 数据行objectId, 一个直播间对应一个数据行进行判断
         "leancloud_oid": '',
@@ -134,6 +141,8 @@ def monitor_and_notify(rid: str, extra: dict = None):
 
     oid = extra.get('leancloud_oid', None)
     assert oid, '缺少关键性参数, leancloud_oid'
+
+    other_msg = extra.get('OTHER_MSG', None)
 
     if status:
         try:
@@ -152,10 +161,14 @@ def monitor_and_notify(rid: str, extra: dict = None):
             # 因为部署环境不同, 所以不建议使用local包进行修改
             lst = time.strftime("%Y{}%m{}%d{} %H{}%M{}%S{}", time.localtime(data["lastShowTime"]))
             lst = lst.format('年', '月', '日', '点', '分', '秒')
+
+            content = f'最后开播时间: {lst}<br>' \
+                      f'<img src={data["avatar"]}>'
+            if other_msg:
+                content = f'{content}<br>{other_msg}'
             notification_push(
                 Message(title=f'您关注的主播 {data["nickName"]}:{data["rid"]} 正在直播!',
-                        content=f'最后开播时间: {lst}<br>'
-                                f'<img src={data["avatar"]}>'),
+                        content=content),
                 extra
             )
 
