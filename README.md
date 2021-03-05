@@ -69,6 +69,9 @@
       pip install -r requirements.txt -t scf_env    
       ```
       意为将包安装在scf_env目录中, 进入scf_env目录将所有文件选中压缩为zip, 在腾讯云 云函数 控制台上传层, 并在新建的函数中绑定层即可.
+      
+      打包环境建议于云函数环境相同, 为Centos7.x, Python3.6, 在本地用Windows打包后上传遇到了兼容问题. 也可以直接使用releases中layer-x.zip.
+
 
 - 环境变量
     - LEANCLOUD_APP_ID leancloud应用ID
