@@ -45,7 +45,7 @@ def push_plus(token, msg: Union[str, Message], topic='', template='html'):
     :param template: json/html
     :return:
     """
-    url = f'https://pushplus.hxtrip.com/send'
+    url = f'https://www.pushplus.plus/send'
     data = {'token': token,
             'topic': topic,
             "template": template}
