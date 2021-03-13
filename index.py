@@ -1,20 +1,22 @@
 # -*- coding: utf-8 -*-
-# @Time    : 2021/2/19 2:13
 # @Author  : Virace
 # @Email   : Virace@aliyun.com
 # @Site    : x-item.com
 # @Software: PyCharm
+# @Create  : 2021/2/19 2:13
+# @Update  : 2021/3/14 3:34
 # @Detail  : 斗鱼订阅推送
 
 import json
+import logging
 import os
 import sys
 import time
+from concurrent.futures import ThreadPoolExecutor, as_completed
+
 import requests
-import logging
 
 from database import Flag
-
 from push import Message, push_plus, cool_push, wxpusher_push
 
 logging.getLogger('urllib3.connectionpool').setLevel(logging.INFO)
@@ -31,6 +33,43 @@ flag = Flag(LEANCLOUD_APP_ID, LEANCLOUD_APP_KEY)
 if sys.platform != "win32":
     os.environ['TZ'] = 'Asia/Shanghai'
     time.tzset()
+
+
+def notification_push_concurrent(msg: Message, extra: dict = None):
+    """
+    多线程推送, 解决通信不及时问题
+    :param msg:
+    :param extra:
+    :return:
+    """
+    if extra is None:
+        extra = {}
+
+    push_plus_token = os.environ.get('PUSH_PLUS_TOKEN')
+    cool_push_token = os.environ.get('COOL_PUSH_TOKEN')
+    wxpusher_token = os.environ.get('WXPUSHER_TOKEN')
+    with ThreadPoolExecutor() as e:
+        fs = []
+        if push_plus_token:
+            fs.append(e.submit(push_plus, push_plus_token, msg, extra.get('push_plus_topic', ''),
+                               extra.get('push_plus_template', 'html')))
+
+        if cool_push_token:
+            fs.append(e.submit(cool_push, push_plus_token, msg, extra.get('cool_push_type', 0),
+                               extra.get('cool_push_specific', None)))
+
+        if wxpusher_token:
+            fs.append(e.submit(wxpusher_push, wxpusher_token, msg, extra.get('wxpusher_type', 1),
+                               extra.get('wxpusher_topicids', None), extra.get('wxpusher_url', None)))
+
+        for future in as_completed(iter(fs)):
+            try:
+                future.result()
+            except Exception as exc:
+                log.warning('generated an exception: %s' % exc)
+
+    if not (push_plus_token or cool_push_token or wxpusher_token):
+        raise Exception('未提供任何推送token')
 
 
 def notification_push(msg: Message, extra: dict = None):
@@ -175,7 +214,7 @@ def monitor_and_notify(rid: str, extra: dict = None):
                       f'<img src={data["avatar"]}>'
             if other_msg:
                 content = f'{content}<br>{other_msg}'
-            notification_push(
+            notification_push_concurrent(
                 Message(title=f'您关注的主播 {data["nickName"]}:{data["rid"]} 正在直播!',
                         content=content),
                 extra
