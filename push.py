@@ -1,16 +1,18 @@
 # -*- coding: utf-8 -*-
-# @Time    : 2021/2/19 18:21
 # @Author  : Virace
 # @Email   : Virace@aliyun.com
 # @Site    : x-item.com
 # @Software: PyCharm
+# @Create  : 2021/2/19 18:21
+# @Update  : 2021/3/14 3:33
 # @Detail  : 推送相关
 
-import requests
 import logging
 from typing import Union
-from dataclasses import dataclass
+
+import requests
 from bs4 import BeautifulSoup
+from dataclasses import dataclass
 
 logging.basicConfig(level=logging.DEBUG)
 log = logging.getLogger()
