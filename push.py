@@ -4,7 +4,7 @@
 # @Site    : x-item.com
 # @Software: PyCharm
 # @Create  : 2021/2/19 18:21
-# @Update  : 2021/3/14 3:33
+# @Update  : 2021/4/13 18:33
 # @Detail  : 推送相关
 
 import logging
@@ -38,6 +38,28 @@ class Message:
         return dict(title=self.title, content=self.content)
 
 
+def request(max_retries=5, timeout=10):
+    """
+    requests.post 增加重试(仅对timeout情况重试)
+    :param max_retries: 最大重试次数 默认5
+    :param timeout: 超时时间 默认10, 单位 秒
+    :return: 返回 请求方法, 调用方法与requests.post 一致
+    """
+    def _request(url, data=None, json=None, **kwargs):
+        retry = 0
+        while True:
+            try:
+                response = requests.post(url, data=data, json=json, **kwargs, timeout=timeout)
+            except requests.exceptions.ConnectTimeout:
+                retry += 1
+            else:
+                return response
+            if retry >= max_retries:
+                raise Exception(f'超过最大重试次数: {max_retries}.')
+
+    return _request
+
+
 def push_plus(token, msg: Union[str, Message], topic='', template='html'):
     """
     push+推送 官网: https://pushplus.hxtrip.com/
@@ -62,7 +84,7 @@ def push_plus(token, msg: Union[str, Message], topic='', template='html'):
     else:
         raise Exception('msg参数类型错误')
 
-    response = requests.post(url, json=data, headers={'Content-Type': 'application/json'})
+    response = request()(url, json=data, headers={'Content-Type': 'application/json'})
     response.raise_for_status()
     log.debug(response.json())
 
@@ -99,7 +121,7 @@ def cool_push(token, msg: Union[str, Message], _type: int = 0, extra: str = None
     url = f'https://push.xuthus.cc/{path}/{token}'
     if parameter:
         url = f'{url}?{parameter}'
-    response = requests.post(url, data=data.encode('utf-8'), headers={'Content-Type': 'application/json'})
+    response = request()(url, data=data.encode('utf-8'), headers={'Content-Type': 'application/json'})
     response.raise_for_status()
     log.debug(response.json())
 
@@ -146,6 +168,6 @@ def wxpusher_push(token, msg: Union[str, Message], _type: int = 1, topic_ids: li
 
     url = 'http://wxpusher.zjiecode.com/api/send/message'
 
-    response = requests.post(url, json=data, headers={'Content-Type': 'application/json'})
+    response = request()(url, json=data, headers={'Content-Type': 'application/json'})
     response.raise_for_status()
     log.debug(response.json())
