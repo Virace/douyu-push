@@ -4,7 +4,7 @@
 # @Site    : x-item.com
 # @Software: PyCharm
 # @Create  : 2021/4/16 14:54
-# @Update  : 2021/4/17 16:0
+# @Update  : 2021/4/17 17:43
 # @Detail  : 
 
 import logging
@@ -25,7 +25,8 @@ def check_time(func):
     def wrapper(*args, **kwargs):
         st = time.time()
         ret = func(*args)
-        log.debug(f'Func: {func.__module__}.{func.__name__}, Time Spent: {round(time.time() - st, 2)}')
+        log.debug(
+            f'[Time Monitoring]: Func: {func.__module__}.{func.__name__}, Time Spent: {round(time.time() - st, 2)}')
         return ret
 
     return wrapper
@@ -38,7 +39,7 @@ def func_retry(func, __max_retries=5, __exception=Exception, **kwargs):
         try:
             data = func(**kwargs)
         except __exception as e:
-            log.debug(f'Func: {func.__module__}.{func.__name__}, Number Of Retries: {_retry},  Error: {str(e)}')
+            log.debug(f'[Retry]: Func: {func.__module__}.{func.__name__}, Number Of Retries: {_retry},  Error: {str(e)}')
             _retry += 1
         else:
             return data
@@ -63,4 +64,3 @@ class Request:
 
     def post(self, url, data=None, json=None, **kwargs):
         return func_retry(requests.post, self.max_retries, self.exception, url=url, data=data, json=json, **kwargs)
-
