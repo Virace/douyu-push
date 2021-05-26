@@ -4,7 +4,7 @@
 # @Site    : x-item.com
 # @Software: PyCharm
 # @Create  : 2021/2/19 18:21
-# @Update  : 2021/4/17 15:58
+# @Update  : 2021/5/23 21:25
 # @Detail  : 推送相关
 
 import logging
@@ -17,7 +17,7 @@ from dataclasses import dataclass
 logging.basicConfig(level=logging.DEBUG)
 log = logging.getLogger()
 
-request = Request(max_retries=3)
+request = Request(max_retries=5)
 
 
 @dataclass
@@ -49,24 +49,27 @@ def push_plus(token, msg: Union[str, Message], topic='', template='html'):
     :param template: json/html
     :return:
     """
+    if isinstance(topic, str):
+        topic = [topic]
     url = f'https://www.pushplus.plus/send'
-    data = {'token': token,
-            'topic': topic,
-            "template": template}
+    for item in topic:
+        data = {'token': token,
+                'topic': item,
+                "template": template}
 
-    if isinstance(msg, Message):
-        data.update(msg.to_dict())
-    elif isinstance(msg, str):
-        data.update(dict(
-            title='通知',
-            content=msg
-        ))
-    else:
-        raise Exception('msg参数类型错误')
+        if isinstance(msg, Message):
+            data.update(msg.to_dict())
+        elif isinstance(msg, str):
+            data.update(dict(
+                title='通知',
+                content=msg
+            ))
+        else:
+            raise Exception('msg参数类型错误')
 
-    response = request.post(url, json=data, headers={'Content-Type': 'application/json'}, timeout=10)
-    response.raise_for_status()
-    log.debug(response.json())
+        response = request.post(url, json=data, headers={'Content-Type': 'application/json'}, timeout=20)
+        response.raise_for_status()
+        log.debug(response.json())
 
 
 def cool_push(token, msg: Union[str, Message], _type: int = 0, extra: str = None):
@@ -101,7 +104,7 @@ def cool_push(token, msg: Union[str, Message], _type: int = 0, extra: str = None
     url = f'https://push.xuthus.cc/{path}/{token}'
     if parameter:
         url = f'{url}?{parameter}'
-    response = request.post(url, data=data.encode('utf-8'), headers={'Content-Type': 'application/json'}, timeout=10)
+    response = request.post(url, data=data.encode('utf-8'), headers={'Content-Type': 'application/json'}, timeout=20)
     response.raise_for_status()
     log.debug(response.json())
 
